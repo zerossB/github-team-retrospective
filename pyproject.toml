@@ -1,0 +1,31 @@
+[project]
+name = "github-team-retrospective"
+version = "1.0.0"
+description = "A tool for generating time-based retrospectives using GitHub analytics, analyzing an organization's repositories."
+authors = [
+    {name = "Guilherme Haynes Howe",email = "zerossb@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pygithub (>=2.8.1,<3.0.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "python-dateutil (>=2.9.0.post0,<3.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+    "plotly (>=6.5.0,<7.0.0)",
+    "matplotlib (>=3.10.8,<4.0.0)",
+    "seaborn (>=0.13.2,<0.14.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)",
+    "click (>=8.3.1,<9.0.0)",
+    "colorama (>=0.4.6,<0.5.0)",
+    "tabulate (>=0.9.0,<0.10.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

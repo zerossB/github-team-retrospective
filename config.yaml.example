@@ -1,0 +1,51 @@
+# Configuração da GitHub Team Retrospective
+
+# Nome da organização do GitHub
+organization: "example"
+
+# Lista de repositórios para analisar
+# Deixe vazio [] para analisar todos os repositórios da organização
+# Ou especifique apenas os nomes dos repos (sem owner/): 
+repositories:  []
+  # - "repo1"
+  # - "repo2"
+  # - "repo3"
+
+# Token de acesso do GitHub
+# RECOMENDADO: Use variável de ambiente GITHUB_TOKEN em vez de colocar aqui
+# Gere em:  https://github.com/settings/tokens
+# Permissões necessárias: repo, read:org
+github_token:  ""
+
+# Período de análise
+# Formato: YYYY-MM-DD
+# Use null para end_date usar a data atual
+start_date: "2025-01-01"
+end_date: null
+
+# Configurações de saída
+output_dir: "reports"
+output_formats: 
+  - "html"
+  - "markdown"
+
+# Opções avançadas
+options:
+  # Incluir repositórios arquivados
+  include_archived: false
+  
+  # Incluir repositórios com fork
+  include_forks: false
+  
+  # Número máximo de workers para paralelização
+  max_workers:  5
+  
+  # Timeout para requisições (segundos)
+  timeout: 30
+  
+  # Cache de dados
+  enable_cache: true
+  cache_ttl: 3600  # segundos
+  
+  # Verbose output
+  verbose: true
