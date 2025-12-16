@@ -1,5 +1,5 @@
 """
-Funções utilitárias. 
+Utility functions.
 """
 
 import logging
@@ -8,13 +8,13 @@ from colorama import Fore, Style
 
 def setup_logging(verbose: bool = False) -> logging.Logger:
     """
-    Configura o sistema de logging.
+    Configure the logging system.
     
     Args:
-        verbose: Se True, define nível DEBUG
+        verbose: If True, set level to DEBUG
     
     Returns:
-        Logger configurado
+        Configured logger
     """
     level = logging.DEBUG if verbose else logging.INFO
     
@@ -28,13 +28,13 @@ def setup_logging(verbose: bool = False) -> logging.Logger:
 
 
 def print_banner():
-    """Imprime banner do aplicativo."""
+    """Print the application banner."""
     banner = f"""
-{Fore. CYAN}╔══════════════════════════════════════════════════════════╗
+{Fore.CYAN}╔══════════════════════════════════════════════════════════╗
 ║                                                          ║
 ║     {Fore.GREEN}🚀 GitHub Team Retrospective{Fore.CYAN}                      ║
 ║                                                          ║
-║     {Fore.YELLOW}Gere retrospectivas baseadas em métricas do GitHub{Fore.CYAN}  ║
+║     {Fore.YELLOW}Generate retrospectives based on GitHub metrics{Fore.CYAN}   ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝{Style.RESET_ALL}
 """
@@ -43,26 +43,26 @@ def print_banner():
 
 def format_number(num: int) -> str:
     """
-    Formata número com separadores de milhares.
+    Format number with thousand separators.
     
     Args:
-        num: Número a formatar
+        num: Number to format
     
     Returns: 
-        Número formatado
+        Formatted number
     """
     return f"{num:,}".replace(',', '.')
 
 
 def format_duration(hours: float) -> str:
     """
-    Formata duração em horas para formato legível.
+    Format duration in hours to a readable format.
     
     Args:
-        hours: Duração em horas
+        hours: Duration in hours
     
     Returns: 
-        Duração formatada
+        Formatted duration
     """
     if hours < 1:
         minutes = int(hours * 60)
@@ -76,14 +76,14 @@ def format_duration(hours: float) -> str:
 
 def truncate_string(text: str, max_length: int = 50) -> str:
     """
-    Trunca string se exceder tamanho máximo.
+    Truncate string if it exceeds maximum length.
     
     Args:
-        text:  Texto a truncar
-        max_length: Tamanho máximo
+        text: Text to truncate
+        max_length: Maximum length
     
     Returns:
-        Texto truncado
+        Truncated text
     """
     if not text:
         return ""

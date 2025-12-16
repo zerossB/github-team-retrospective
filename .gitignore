@@ -38,9 +38,7 @@ config.yaml
 .env
 
 # Reports
-reports/
-*.html
-*.json
+reports/*
 
 # Logs
 *.log

@@ -1,5 +1,5 @@
 """
-Coletor de métricas do GitHub.
+GitHub metrics collector.
 """
 
 import logging
@@ -13,20 +13,20 @@ logger = logging.getLogger(__name__)
 
 
 class MetricsCollector:
-    """Coleta métricas de repositórios do GitHub."""
+    """Collects GitHub repository metrics."""
     
     def __init__(self, client, organization:  str, repositories: List[str], 
                  start_date: str, end_date: str, options: dict = None):
         """
-        Inicializa o coletor de métricas. 
+        Initialize the metrics collector.
         
         Args:
             client: GitHubClient instance
-            organization: Nome da organização
-            repositories: Lista de nomes de repositórios
-            start_date: Data inicial (YYYY-MM-DD)
-            end_date: Data final (YYYY-MM-DD)
-            options: Opções de configuração
+            organization: Organization name
+            repositories: List of repository names
+            start_date: Start date (YYYY-MM-DD)
+            end_date: End date (YYYY-MM-DD)
+            options: Configuration options
         """
         self.client = client
         self.organization = organization
@@ -35,26 +35,26 @@ class MetricsCollector:
         self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
         self.options = options or {}
         
-        # Carregar repositórios
+        # Load repositories
         self.repositories = self.client.get_repositories(organization, repositories)
         
         if not self.repositories:
-            raise Exception("Nenhum repositório encontrado!")
+            raise Exception("No repositories found!")
         
-        logger.info(f"Carregados {len(self.repositories)} repositórios")
+        logger.info(f"Loaded {len(self.repositories)} repositories")
     
     def _is_in_date_range(self, date) -> bool:
-        """Verifica se uma data está no range especificado."""
+        """Check if a date is within the specified range."""
         if not date:
             return False
         if not date.tzinfo:
-            # Se não tem timezone, assumir UTC
+            # If no timezone, assume UTC
             date = date. replace(tzinfo=self.start_date.tzinfo)
         date_naive = date.replace(tzinfo=None)
         return self.start_date <= date_naive <= self.end_date
     
     def collect_all_metrics(self) -> Dict[str, Any]:
-        """Coleta todas as métricas."""
+        """Collect all metrics."""
         metrics = {
             'organization': self.organization,
             'period': {
@@ -65,21 +65,21 @@ class MetricsCollector:
             'summary': {}
         }
         
-        print(f"\n📚 Analisando {len(self.repositories)} repositórios...\n")
+        print(f"\n📚 Analyzing {len(self.repositories)} repositories...\n")
         
-        # Coletar métricas de cada repositório
-        for repo in tqdm(self.repositories, desc="Repositórios"):
+        # Collect metrics for each repository
+        for repo in tqdm(self.repositories, desc="Repositories"):
             repo_metrics = self._collect_repository_metrics(repo)
             metrics['repositories'].append(repo_metrics)
         
-        # Calcular sumário geral
+        # Calculate overall summary
         metrics['summary'] = self._calculate_summary(metrics['repositories'])
         
         return metrics
     
     def _collect_repository_metrics(self, repo) -> Dict[str, Any]: 
-        """Coleta métricas de um repositório específico."""
-        logger.info(f"Coletando métricas de {repo. name}")
+        """Collect metrics for a specific repository."""
+        logger.info(f"Collecting metrics for {repo. name}")
         
         repo_data = {
             'name': repo.name,
@@ -99,7 +99,7 @@ class MetricsCollector:
         return repo_data
     
     def _collect_commits(self, repo) -> Dict[str, Any]:
-        """Coleta estatísticas de commits."""
+        """Collect commit statistics."""
         commits_data = {
             'total':  0,
             'by_author': defaultdict(int),
@@ -119,19 +119,19 @@ class MetricsCollector:
                 
                 commits_data['total'] += 1
                 
-                # Por autor
+                # By author
                 author = commit.commit.author.name or commit.commit.author.email
                 commits_data['by_author'][author] += 1
                 
-                # Por mês
+                # By month
                 month = commit.commit.author.date.strftime('%Y-%m')
                 commits_data['by_month'][month] += 1
                 
-                # Por dia da semana
+                # By weekday
                 weekday = commit.commit.author.date. strftime('%A')
                 commits_data['by_weekday'][weekday] += 1
                 
-                # Estatísticas de código
+                # Code statistics
                 try:
                     stats = commit.stats
                     commits_data['additions'][author] += stats.additions
@@ -141,9 +141,9 @@ class MetricsCollector:
                     pass
                 
         except Exception as e:
-            logger.warning(f"Erro ao coletar commits de {repo.name}: {e}")
+            logger.warning(f"Error collecting commits for {repo.name}: {e}")
         
-        # Converter defaultdict para dict normal
+        # Convert defaultdict to regular dict
         return {
             'total': commits_data['total'],
             'by_author': dict(commits_data['by_author']),
@@ -155,7 +155,7 @@ class MetricsCollector:
         }
     
     def _collect_pull_requests(self, repo) -> Dict[str, Any]:
-        """Coleta estatísticas de pull requests."""
+        """Collect pull request statistics."""
         pr_data = {
             'total': 0,
             'merged': 0,
@@ -169,7 +169,7 @@ class MetricsCollector:
         }
         
         try:
-            # Buscar PRs
+            # Fetch PRs
             prs = repo.get_pulls(state='all', sort='created', direction='desc')
             
             for pr in self.client.safe_paginated_request(prs, f"  PRs ({repo. name})"):
@@ -181,20 +181,20 @@ class MetricsCollector:
                 # Status
                 if pr.merged:
                     pr_data['merged'] += 1
-                    # Tempo de merge
+                    # Merge time
                     if pr.merged_at and pr.created_at:
-                        merge_time = (pr.merged_at - pr. created_at).total_seconds() / 3600  # horas
+                        merge_time = (pr.merged_at - pr. created_at).total_seconds() / 3600  # hours
                         pr_data['merge_times'].append(merge_time)
                 elif pr.state == 'closed':
                     pr_data['closed'] += 1
                 else:
                     pr_data['open'] += 1
                 
-                # Por autor
+                # By author
                 author = pr.user. login if pr.user else 'unknown'
                 pr_data['by_author'][author] += 1
                 
-                # Tamanho (additions + deletions)
+                # Size (additions + deletions)
                 size = pr.additions + pr.deletions
                 pr_data['sizes'].append(size)
                 
@@ -207,7 +207,7 @@ class MetricsCollector:
                 except:
                     pass
                 
-                # Comentários
+                # Comments
                 try:
                     comments = pr.get_comments()
                     for comment in comments:
@@ -217,9 +217,9 @@ class MetricsCollector:
                     pass
                 
         except Exception as e:
-            logger.warning(f"Erro ao coletar PRs de {repo.name}:  {e}")
+            logger.warning(f"Error collecting PRs for {repo.name}:  {e}")
         
-        # Calcular médias
+        # Calculate averages
         avg_merge_time = sum(pr_data['merge_times']) / len(pr_data['merge_times']) if pr_data['merge_times'] else 0
         avg_size = sum(pr_data['sizes']) / len(pr_data['sizes']) if pr_data['sizes'] else 0
         
@@ -236,7 +236,7 @@ class MetricsCollector:
         }
     
     def _collect_issues(self, repo) -> Dict[str, Any]:
-        """Coleta estatísticas de issues."""
+        """Collect issue statistics."""
         issue_data = {
             'total':  0,
             'open':  0,
@@ -249,7 +249,7 @@ class MetricsCollector:
             issues = repo.get_issues(state='all', since=self.start_date)
             
             for issue in self.client.safe_paginated_request(issues, f"  Issues ({repo.name})"):
-                # Pular pull requests (GitHub API retorna PRs como issues)
+                # Skip pull requests (GitHub API returns PRs as issues)
                 if issue.pull_request:
                     continue
                 
@@ -263,19 +263,19 @@ class MetricsCollector:
                     issue_data['open'] += 1
                 else:
                     issue_data['closed'] += 1
-                    # Tempo de resolução
+                    # Resolution time
                     if issue.closed_at:
-                        close_time = (issue.closed_at - issue.created_at).total_seconds() / 3600  # horas
+                        close_time = (issue.closed_at - issue.created_at).total_seconds() / 3600  # hours
                         issue_data['close_times'].append(close_time)
                 
-                # Por autor
+                # By author
                 author = issue.user.login if issue.user else 'unknown'
                 issue_data['by_author'][author] += 1
                 
         except Exception as e:
-            logger.warning(f"Erro ao coletar issues de {repo. name}: {e}")
+            logger.warning(f"Error collecting issues for {repo. name}: {e}")
         
-        # Calcular média de tempo de resolução
+        # Compute average resolution time
         avg_close_time = sum(issue_data['close_times']) / len(issue_data['close_times']) if issue_data['close_times'] else 0
         
         return {
@@ -287,7 +287,7 @@ class MetricsCollector:
         }
     
     def _collect_releases(self, repo) -> Dict[str, Any]:
-        """Coleta estatísticas de releases."""
+        """Collect release statistics."""
         release_data = {
             'total':  0,
             'releases': []
@@ -309,12 +309,12 @@ class MetricsCollector:
                 })
                 
         except Exception as e:
-            logger. warning(f"Erro ao coletar releases de {repo.name}: {e}")
+            logger. warning(f"Error collecting releases for {repo.name}: {e}")
         
         return release_data
     
     def _calculate_summary(self, repositories:  List[Dict]) -> Dict[str, Any]:
-        """Calcula sumário geral de todos os repositórios."""
+        """Calculate overall summary for all repositories."""
         summary = {
             'total_repositories': len(repositories),
             'total_commits': 0,
@@ -333,21 +333,21 @@ class MetricsCollector:
         all_reviewers = defaultdict(int)
         
         for repo in repositories:
-            # Totais
+            # Totals
             summary['total_commits'] += repo['commits']['total']
             summary['total_prs'] += repo['pull_requests']['total']
             summary['total_issues'] += repo['issues']['total']
             summary['total_releases'] += repo['releases']['total']
             
-            # Linguagens
+            # Languages
             if repo['language']:
                 summary['languages'][repo['language']] += 1
             
-            # Commits por mês
+            # Commits by month
             for month, count in repo['commits']['by_month'].items():
                 summary['commits_by_month'][month] += count
             
-            # Contribuidores
+            # Contributors
             for author, count in repo['commits']['by_author'].items():
                 all_contributors[author] += count
             
@@ -355,13 +355,13 @@ class MetricsCollector:
             for reviewer, count in repo['pull_requests']['by_reviewer'].items():
                 all_reviewers[reviewer] += count
             
-            # Linhas de código
+            # Lines of code
             for author, lines in repo['commits']['additions'].items():
                 summary['total_additions'] += lines
             for author, lines in repo['commits']['deletions'].items():
                 summary['total_deletions'] += lines
         
-        # Top 10 contribuidores
+        # Top 10 contributors
         summary['top_contributors'] = dict(sorted(
             all_contributors.items(), 
             key=lambda x: x[1], 
@@ -375,7 +375,7 @@ class MetricsCollector:
             reverse=True
         )[:10])
         
-        # Converter defaultdict para dict
+        # Convert defaultdict to dict
         summary['languages'] = dict(summary['languages'])
         summary['commits_by_month'] = dict(sorted(summary['commits_by_month'].items()))
         

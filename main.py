@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script principal para gerar retrospectiva de time do GitHub.
+Main script to generate GitHub team retrospective.
 """
 
 import os
@@ -17,50 +17,52 @@ from src.metrics_collector import MetricsCollector
 from src.report_generator import ReportGenerator
 from src.utils import setup_logging, print_banner
 
-# Inicializar colorama
+# Initialize colorama
 init(autoreset=True)
 
-# Carregar variáveis de ambiente
+# Load environment variables
 load_dotenv()
 
 
 def load_config(config_path: str) -> dict:
-    """Carrega o arquivo de configuração YAML."""
+    """Load YAML configuration file."""
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
         return config
     except FileNotFoundError:
+        click.echo(f"{Fore.RED}❌ Config file not found: {config_path}")
         click.echo(
-            f"{Fore.RED}❌ Arquivo de configuração não encontrado: {config_path}"
-        )
-        click.echo(
-            f"{Fore.YELLOW}💡 Copie config.yaml.example para config.yaml e configure-o"
+            f"{Fore.YELLOW}💡 Copy config.yaml.example to config.yaml and configure it"
         )
         sys.exit(1)
     except yaml.YAMLError as e:
-        click.echo(f"{Fore.RED}❌ Erro ao ler arquivo de configuração: {e}")
+        click.echo(f"{Fore.RED}❌ Error reading config file: {e}")
         sys.exit(1)
 
 
 @click.command()
+@click.option("--config", default="config.yaml", help="Path to config file")
+@click.option("--org", help="Organization name (overrides config)")
 @click.option(
-    "--config", default="config.yaml", help="Caminho para arquivo de configuração"
-)
-@click.option("--org", help="Nome da organização (sobrescreve config)")
-@click.option(
-    "--repos", help="Lista de repositórios separados por vírgula (sobrescreve config)"
+    "--repos",
+    help="Comma-separated repository list (overrides config)",
 )
 @click.option(
-    "--all-repos", is_flag=True, help="Analisar todos os repositórios da organização"
+    "--all-repos",
+    is_flag=True,
+    help="Analyze all organization repositories",
 )
-@click.option("--start-date", help="Data inicial (YYYY-MM-DD)")
-@click.option("--end-date", help="Data final (YYYY-MM-DD)")
-@click.option("--output-dir", help="Diretório de saída")
+@click.option("--start-date", help="Start date (YYYY-MM-DD)")
+@click.option("--end-date", help="End date (YYYY-MM-DD)")
+@click.option("--output-dir", help="Output directory")
 @click.option(
-    "--format", "output_format", multiple=True, help="Formato de saída (html, markdown)"
+    "--format",
+    "output_format",
+    multiple=True,
+    help="Output format (html, markdown)",
 )
-@click.option("--verbose", is_flag=True, help="Saída detalhada")
+@click.option("--verbose", is_flag=True, help="Verbose output")
 def main(
     config,
     org,
@@ -75,24 +77,24 @@ def main(
     """
     🚀 GitHub Team Retrospective
 
-    Gera retrospectivas de time baseadas em métricas do GitHub.
+    Generate team retrospectives based on GitHub metrics.
     """
 
     print_banner()
 
-    # Configurar logging
+    # Configure logging
     logger = setup_logging(verbose or False)
 
-    # Carregar configuração
+    # Load configuration
     config_data = load_config(config)
 
-    # Sobrescrever com argumentos da linha de comando
+    # Override with CLI args
     organization = org or config_data.get("organization")
     if not organization:
-        click.echo(f"{Fore.RED}❌ Organização não especificada!")
+        click.echo(f"{Fore.RED}❌ Organization not specified!")
         sys.exit(1)
 
-    # Repositórios
+    # Repositories
     if all_repos:
         repositories = []
     elif repos:
@@ -100,7 +102,7 @@ def main(
     else:
         repositories = config_data.get("repositories", [])
 
-    # Datas
+    # Dates
     start = start_date or config_data.get("start_date", "2025-01-01")
     end = end_date or config_data.get("end_date")
     if not end:
@@ -117,51 +119,53 @@ def main(
     # Token
     token = os.getenv("GITHUB_TOKEN") or config_data.get("github_token")
     if not token:
-        click.echo(f"{Fore.RED}❌ Token do GitHub não configurado!")
-        click.echo(f"{Fore.YELLOW}💡 Configure GITHUB_TOKEN ou adicione no config.yaml")
+        click.echo(f"{Fore.RED}❌ GitHub token not configured!")
+        click.echo(
+            f"{Fore.YELLOW}💡 Set GITHUB_TOKEN or add it to config.yaml"
+        )
         sys.exit(1)
 
-    # Opções
+    # Options
     options = config_data.get("options", {})
 
-    click.echo(f"\n{Fore.CYAN}📊 Configuração:")
-    click.echo(f"   Organização: {Fore.GREEN}{organization}")
+    click.echo(f"\n{Fore.CYAN}📊 Configuration:")
+    click.echo(f"   Organization: {Fore.GREEN}{organization}")
     click.echo(
-        f"   Repositórios: {Fore.GREEN}{len(repositories) if repositories else 'Todos'}"
+        f"   Repositories: {Fore.GREEN}{len(repositories) if repositories else 'All'}"
     )
-    click.echo(f"   Período: {Fore.GREEN}{start} até {end}")
-    click.echo(f"   Formato: {Fore.GREEN}{', '.join(formats)}")
+    click.echo(f"   Period: {Fore.GREEN}{start} to {end}")
+    click.echo(f"   Format: {Fore.GREEN}{', '.join(formats)}")
     click.echo()
 
     try:
-        # Inicializar cliente GitHub
-        click.echo(f"{Fore.YELLOW}🔑 Conectando ao GitHub...")
+        # Initialize GitHub client
+        click.echo(f"{Fore.YELLOW}🔑 Connecting to GitHub...")
         client = GitHubClient(token, options)
 
-        # Coletar métricas
-        click.echo(f"{Fore.YELLOW}📈 Coletando métricas...")
+        # Collect metrics
+        click.echo(f"{Fore.YELLOW}📈 Collecting metrics...")
         collector = MetricsCollector(
             client, organization, repositories, start, end, options
         )
         metrics = collector.collect_all_metrics()
 
-        # Gerar relatórios
-        click.echo(f"\n{Fore.YELLOW}📝 Gerando relatórios...")
+        # Generate reports
+        click.echo(f"\n{Fore.YELLOW}📝 Generating reports...")
         generator = ReportGenerator(metrics, organization, start, end)
 
-        # Criar diretório de saída
+        # Create output directory
         Path(output_directory).mkdir(parents=True, exist_ok=True)
 
-        # Gerar cada formato
+        # Generate each format
         for fmt in formats:
             output_file = generator.generate(fmt, output_directory)
             click.echo(f"   {Fore.GREEN}✅ {fmt.upper()}:  {output_file}")
 
-        click.echo(f"\n{Fore.GREEN}🎉 Retrospectiva gerada com sucesso!")
-        click.echo(f"{Fore.CYAN}📂 Arquivos salvos em: {output_directory}")
+        click.echo(f"\n{Fore.GREEN}🎉 Retrospective generated successfully!")
+        click.echo(f"{Fore.CYAN}📂 Files saved in: {output_directory}")
 
     except Exception as e:
-        click.echo(f"\n{Fore.RED}❌ Erro:  {str(e)}")
+        click.echo(f"\n{Fore.RED}❌ Error:  {str(e)}")
         if verbose:
             import traceback
 
