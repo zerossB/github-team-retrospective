@@ -37,6 +37,9 @@ ENV/
 config.yaml
 .env
 
+# Cache
+.cache/
+
 # Reports
 reports/*
 

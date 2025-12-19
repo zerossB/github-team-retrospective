@@ -43,9 +43,14 @@ options:
   # Request timeout (seconds)
   timeout: 30
 
-  # Data cache
-  enable_cache: true
-  cache_ttl: 3600  # seconds
+  # Cache configuration (file-based cache)
+  cache:
+    # Enable or disable cache
+    enabled: true
+    # Cache directory (relative or absolute path)
+    dir: ".cache"
+    # Time to live in hours (how long cached data is valid)
+    ttl_hours: 24
 
   # Verbose output
   verbose: true

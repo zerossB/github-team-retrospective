@@ -9,6 +9,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from tqdm import tqdm
+from src.cache_manager import CacheManager
 
 try:
     from git import Repo, GitCommandError
@@ -42,6 +43,15 @@ class MetricsCollector:
         self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
         self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
         self.options = options or {}
+        
+        # Initialize cache if enabled
+        cache_enabled = self.options.get('cache', {}).get('enabled', True)
+        cache_dir = self.options.get('cache', {}).get('dir', '.cache')
+        cache_ttl = self.options.get('cache', {}).get('ttl_hours', 24)
+        self.cache = CacheManager(cache_dir, cache_ttl) if cache_enabled else None
+        
+        if self.cache:
+            logger.info(f"Cache enabled: {cache_dir} (TTL: {cache_ttl}h)")
         
         # Load repositories
         self.repositories = self.client.get_repositories(organization, repositories)
@@ -89,6 +99,20 @@ class MetricsCollector:
         """Collect metrics for a specific repository."""
         logger.info(f"Collecting metrics for {repo. name}")
         
+        # Try to get from cache
+        if self.cache:
+            cache_key = {
+                'type': 'repository_metrics',
+                'organization': self.organization,
+                'repository': repo.name,
+                'start_date': self.start_date.strftime('%Y-%m-%d'),
+                'end_date': self.end_date.strftime('%Y-%m-%d')
+            }
+            cached_data = self.cache.get(cache_key)
+            if cached_data is not None:
+                logger.info(f"📦 Using cached data for {repo.name}")
+                return cached_data
+        
         repo_data = {
             'name': repo.name,
             'full_name': repo.full_name,
@@ -103,6 +127,17 @@ class MetricsCollector:
             'releases': self._collect_releases(repo),
             'contributors': {}
         }
+        
+        # Cache the data
+        if self.cache:
+            cache_key = {
+                'type': 'repository_metrics',
+                'organization': self.organization,
+                'repository': repo.name,
+                'start_date': self.start_date.strftime('%Y-%m-%d'),
+                'end_date': self.end_date.strftime('%Y-%m-%d')
+            }
+            self.cache.set(cache_key, repo_data)
         
         return repo_data
     
