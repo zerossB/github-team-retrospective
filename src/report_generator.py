@@ -64,7 +64,7 @@ class ReportGenerator:
         charts = self._generate_charts()
         
         # Load template
-        template_path = Path(__file__).parent.parent / 'templates' / 'new_report_template.html'
+        template_path = Path(__file__).parent.parent / 'templates' / 'report_template.html'
         with open(template_path, 'r', encoding='utf-8') as f:
             template_content = f.read()
         
