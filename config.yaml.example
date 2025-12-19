@@ -49,3 +49,10 @@ options:
 
   # Verbose output
   verbose: true
+
+  # Local repositories path (optional)
+  # If provided, commits will be read from local Git repositories instead of API
+  # This significantly reduces API calls. Format: "/path/to/repos/{repo_name}"
+  # Example: "/home/user/projects/{repo_name}" or "C:/Projects/{repo_name}"
+  # The {repo_name} placeholder will be replaced with each repository name
+  local_repos_path: null  # null = use GitHub API

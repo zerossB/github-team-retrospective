@@ -86,6 +86,30 @@ Or create a `.env` file:
 GITHUB_TOKEN=your_token_here
 ```
 
+### 4. Using Local Repositories (Optional - Reduces API Calls)
+
+To significantly reduce GitHub API calls, you can analyze commits from local Git repositories instead of fetching them via API. Other data (PRs, issues, releases) will still be fetched from the API.
+
+Add to your `config.yaml`:
+
+```yaml
+options:
+  # Local repositories path - use {repo_name} as placeholder
+  local_repos_path: "/path/to/repos/{repo_name}"
+  # Windows example: "C:/Projects/{repo_name}"
+  # Linux/Mac example: "/home/user/projects/{repo_name}"
+```
+
+**Requirements:**
+- Repositories must be cloned locally
+- GitPython package must be installed (included in dependencies)
+- The path must contain `{repo_name}` which will be replaced with each repository name
+
+**Benefits:**
+- Dramatically reduces API rate limit usage
+- Faster commit analysis for large repositories
+- Automatically falls back to API if local repo not found
+
 ## 📖 Usage
 
 ### Basic Mode

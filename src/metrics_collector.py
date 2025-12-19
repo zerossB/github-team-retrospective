@@ -3,11 +3,19 @@ GitHub metrics collector.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 from tqdm import tqdm
+
+try:
+    from git import Repo, GitCommandError
+    GIT_AVAILABLE = True
+except ImportError:
+    GIT_AVAILABLE = False
+    logger.warning("GitPython not installed. Local repository support disabled.")
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +108,96 @@ class MetricsCollector:
     
     def _collect_commits(self, repo) -> Dict[str, Any]:
         """Collect commit statistics."""
+        # Check if local repository path is configured
+        local_path = self.options.get('local_repos_path')
+        if local_path and GIT_AVAILABLE:
+            return self._collect_commits_from_local(repo)
+        else:
+            return self._collect_commits_from_api(repo)
+    
+    def _collect_commits_from_local(self, repo) -> Dict[str, Any]:
+        """Collect commit statistics from local Git repository."""
+        commits_data = {
+            'total':  0,
+            'by_author': defaultdict(int),
+            'by_month': defaultdict(int),
+            'by_weekday': defaultdict(int),
+            'additions': defaultdict(int),
+            'deletions': defaultdict(int),
+            'files_changed': defaultdict(int)
+        }
+        
+        try:
+            # Build local repository path
+            local_path = self.options.get('local_repos_path').replace('{repo_name}', repo.name)
+            repo_path = Path(local_path)
+            
+            if not repo_path.exists():
+                logger.warning(f"Local repository not found: {repo_path}. Falling back to API.")
+                return self._collect_commits_from_api(repo)
+            
+            logger.info(f"Reading commits from local repository: {repo_path}")
+            git_repo = Repo(repo_path)
+            
+            # Get commits in date range
+            since_timestamp = int(self.start_date.timestamp())
+            until_timestamp = int(self.end_date.timestamp())
+            
+            commits = list(git_repo.iter_commits(
+                all=True,
+                since=since_timestamp,
+                until=until_timestamp
+            ))
+            
+            for commit in tqdm(commits, desc=f"  Commits ({repo.name})", unit="commits"):
+                commit_date = datetime.fromtimestamp(commit.committed_date, tz=timezone.utc)
+                
+                if not self._is_in_date_range(commit_date):
+                    continue
+                
+                commits_data['total'] += 1
+                
+                # By author
+                author = commit.author.name or commit.author.email
+                commits_data['by_author'][author] += 1
+                
+                # By month
+                month = commit_date.strftime('%Y-%m')
+                commits_data['by_month'][month] += 1
+                
+                # By weekday
+                weekday = commit_date.strftime('%A')
+                commits_data['by_weekday'][weekday] += 1
+                
+                # Code statistics
+                try:
+                    stats = commit.stats.total
+                    commits_data['additions'][author] += stats['insertions']
+                    commits_data['deletions'][author] += stats['deletions']
+                    commits_data['files_changed'][author] += stats['files']
+                except Exception as e:
+                    logger.debug(f"Could not get stats for commit {commit.hexsha}: {e}")
+                    pass
+                
+        except GitCommandError as e:
+            logger.error(f"Git error reading {repo.name}: {e}. Falling back to API.")
+            return self._collect_commits_from_api(repo)
+        except Exception as e:
+            logger.warning(f"Error collecting commits from local repo {repo.name}: {e}")
+        
+        # Convert defaultdict to regular dict
+        return {
+            'total': commits_data['total'],
+            'by_author': dict(commits_data['by_author']),
+            'by_month': dict(commits_data['by_month']),
+            'by_weekday': dict(commits_data['by_weekday']),
+            'additions': dict(commits_data['additions']),
+            'deletions': dict(commits_data['deletions']),
+            'files_changed': dict(commits_data['files_changed'])
+        }
+    
+    def _collect_commits_from_api(self, repo) -> Dict[str, Any]:
+        """Collect commit statistics from GitHub API."""
         commits_data = {
             'total':  0,
             'by_author': defaultdict(int),
@@ -128,7 +226,7 @@ class MetricsCollector:
                 commits_data['by_month'][month] += 1
                 
                 # By weekday
-                weekday = commit.commit.author.date. strftime('%A')
+                weekday = commit.commit.author.date.strftime('%A')
                 commits_data['by_weekday'][weekday] += 1
                 
                 # Code statistics
