@@ -365,7 +365,8 @@ class MetricsCollector:
             'by_reviewer': dict(pr_data['by_reviewer']),
             'comments': dict(pr_data['comments']),
             'avg_merge_time_hours': round(avg_merge_time, 2),
-            'avg_size_lines': round(avg_size, 0)
+            'avg_size_lines': round(avg_size, 0),
+            'sizes': pr_data['sizes']
         }
     
     def _collect_issues(self, repo) -> Dict[str, Any]:
@@ -458,12 +459,18 @@ class MetricsCollector:
             'top_reviewers': {},
             'languages': defaultdict(int),
             'commits_by_month': defaultdict(int),
+            'commits_by_weekday': defaultdict(int),
             'total_additions': 0,
-            'total_deletions': 0
+            'total_deletions': 0,
+            'total_reviews': 0,
+            'pr_approval_rate': 0,
+            'avg_reviews_per_pr': 0,
+            'pr_size_distribution': {'small': 0, 'medium': 0, 'large': 0, 'xlarge': 0}
         }
         
         all_contributors = defaultdict(int)
         all_reviewers = defaultdict(int)
+        total_pr_sizes = []
         
         for repo in repositories:
             # Totals
@@ -480,6 +487,10 @@ class MetricsCollector:
             for month, count in repo['commits']['by_month'].items():
                 summary['commits_by_month'][month] += count
             
+            # Commits by weekday
+            for weekday, count in repo['commits'].get('by_weekday', {}).items():
+                summary['commits_by_weekday'][weekday] += count
+            
             # Contributors
             for author, count in repo['commits']['by_author'].items():
                 all_contributors[author] += count
@@ -487,6 +498,11 @@ class MetricsCollector:
             # Reviewers
             for reviewer, count in repo['pull_requests']['by_reviewer'].items():
                 all_reviewers[reviewer] += count
+                summary['total_reviews'] += count
+            
+            # PR sizes for distribution
+            if 'sizes' in repo['pull_requests']:
+                total_pr_sizes.extend(repo['pull_requests']['sizes'])
             
             # Lines of code
             for author, lines in repo['commits']['additions'].items():
@@ -507,6 +523,31 @@ class MetricsCollector:
             key=lambda x:  x[1], 
             reverse=True
         )[:10])
+        
+        # Calculate average reviews per PR
+        if summary['total_prs'] > 0:
+            summary['avg_reviews_per_pr'] = round(summary['total_reviews'] / summary['total_prs'], 2)
+        
+        # Calculate PR approval rate
+        total_merged = sum(repo['pull_requests']['merged'] for repo in repositories)
+        if summary['total_prs'] > 0:
+            summary['pr_approval_rate'] = round((total_merged / summary['total_prs']) * 100, 1)
+        
+        # Calculate PR size distribution
+        for size in total_pr_sizes:
+            if size < 100:
+                summary['pr_size_distribution']['small'] += 1
+            elif size < 500:
+                summary['pr_size_distribution']['medium'] += 1
+            elif size < 1000:
+                summary['pr_size_distribution']['large'] += 1
+            else:
+                summary['pr_size_distribution']['xlarge'] += 1
+        
+        # Sort weekdays in order
+        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        sorted_weekdays = {day: summary['commits_by_weekday'].get(day, 0) for day in weekday_order}
+        summary['commits_by_weekday'] = sorted_weekdays
         
         # Convert defaultdict to dict
         summary['languages'] = dict(summary['languages'])

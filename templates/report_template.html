@@ -6,6 +6,25 @@
     <title>Retrospective - {{ organization }}</title>
     <script src="https://cdn.plot.ly/plotly-3.3.0.min.js"></script>
     <style>
+        :root {
+            /* Primary and Secondary Colors - Easy to customize */
+            --color-primary: #5b6efc;
+            --color-primary-dark: #4557e0;
+            --color-primary-light: #8b9aff;
+            --color-secondary: #ff6b6b;
+            --color-accent: #ffd93d;
+            --color-success: #51cf66;
+            --color-warning: #ffa94d;
+            
+            /* Grays and Neutrals */
+            --color-dark: #1a1a1a;
+            --color-text: #2d3748;
+            --color-text-light: #718096;
+            --color-border: #e2e8f0;
+            --color-bg: #f7fafc;
+            --color-white: #ffffff;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,210 +32,363 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--color-text);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1580px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: var(--color-white);
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
             overflow: hidden;
         }
         
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--color-white);
+            padding: 48px 40px;
             text-align: center;
         }
         
         header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2.75em;
+            margin-bottom: 16px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
         
-        header p {
-            font-size: 1.2em;
+        header .org-name {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.95;
+        }
+        
+        header .period {
+            font-size: 1em;
             opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        header .generated {
+            font-size: 0.9em;
+            opacity: 0.75;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
             padding: 40px;
-            background: #f8f9fa;
+            background: var(--color-bg);
+            border-bottom: 1px solid var(--color-border);
         }
         
         .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: var(--color-white);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(91, 110, 252, 0.15);
+            border-color: var(--color-primary);
         }
         
         .stat-card .icon {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2.25em;
+            margin-bottom: 12px;
+            display: block;
         }
         
         .stat-card .value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
+            font-size: 1.875em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: 8px 0;
         }
         
         .stat-card .label {
-            color: #666;
-            font-size: 0.9em;
+            color: var(--color-text-light);
+            font-size: 0.875em;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
         
         .section {
-            padding: 40px;
+            padding: 48px 40px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .section:last-of-type {
+            border-bottom: none;
         }
         
         .section-title {
             font-size: 2em;
-            margin-bottom: 30px;
-            color: #333;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
+            margin-bottom: 32px;
+            color: var(--color-text);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), transparent);
+            border-radius: 2px;
         }
         
         .chart-container {
-            margin: 30px 0;
-            background: white;
+            margin: 24px 0;
+            background: var(--color-bg);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
         }
         
         .ranking-list {
             list-style: none;
             padding: 0;
+            display: grid;
+            gap: 12px;
         }
         
         .ranking-item {
             display: flex;
             align-items: center;
-            padding: 15px;
-            margin: 10px 0;
-            background: #f8f9fa;
+            padding: 16px;
+            background: var(--color-bg);
             border-radius: 10px;
-            transition: background 0.3s ease;
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
         }
         
         .ranking-item:hover {
-            background: #e9ecef;
+            background: var(--color-white);
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(91, 110, 252, 0.1);
         }
         
         .ranking-item .position {
-            font-size: 1.5em;
-            font-weight: bold;
-            width: 40px;
+            font-size: 1.25em;
+            font-weight: 700;
+            width: 36px;
             text-align: center;
+            color: var(--color-primary);
         }
         
         .ranking-item .medal {
-            font-size: 2em;
-            margin-right: 15px;
+            font-size: 1.75em;
+            margin: 0 12px;
+            min-width: 32px;
+            text-align: center;
         }
         
         .ranking-item .name {
             flex: 1;
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--color-text);
         }
         
         .ranking-item .value {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--color-primary);
+            background: var(--color-primary);
+            color: var(--color-white);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875em;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--color-white);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+        }
+        
+        table thead {
+            background: var(--color-bg);
+            border-bottom: 2px solid var(--color-border);
+        }
+        
+        table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--color-text);
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+        
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        table tbody tr:hover {
+            background: var(--color-bg);
         }
         
         .repo-card {
-            background: #f8f9fa;
-            padding: 25px;
-            margin: 20px 0;
-            border-radius: 15px;
-            border-left: 4px solid #667eea;
+            background: var(--color-bg);
+            padding: 24px;
+            margin: 16px 0;
+            border-radius: 12px;
+            border-left: 4px solid var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-left: 4px solid var(--color-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .repo-card:hover {
+            box-shadow: 0 8px 16px rgba(91, 110, 252, 0.1);
         }
         
         .repo-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-size: 1.25em;
+            font-weight: 700;
+        }
+        
+        .repo-card h3 a {
+            color: var(--color-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .repo-card h3 a:hover {
+            color: var(--color-primary-dark);
         }
         
         .repo-card .description {
-            color: #666;
-            margin-bottom: 15px;
+            color: var(--color-text-light);
+            margin-bottom: 16px;
+            font-size: 0.95em;
             font-style: italic;
         }
         
         .repo-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
         }
         
         .repo-stat {
             text-align: center;
-            padding: 10px;
-            background: white;
+            padding: 12px;
+            background: var(--color-white);
             border-radius: 8px;
+            border: 1px solid var(--color-border);
         }
         
         .repo-stat .icon {
             font-size: 1.5em;
+            margin-bottom: 4px;
         }
         
         .repo-stat .value {
-            font-weight: bold;
-            color: #667eea;
-            margin: 5px 0;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: 4px 0;
+            font-size: 1.125em;
         }
         
         .repo-stat .label {
-            font-size: 0.85em;
-            color: #666;
+            font-size: 0.75em;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
         }
         
         footer {
-            background: #2c3e50;
-            color: white;
+            background: var(--color-dark);
+            color: var(--color-white);
             text-align: center;
-            padding: 20px;
-            margin-top: 40px;
+            padding: 24px;
+        }
+        
+        footer p {
+            margin: 4px 0;
+        }
+        
+        footer .subtitle {
+            font-size: 0.9em;
+            opacity: 0.75;
         }
         
         @media (max-width: 768px) {
+            header {
+                padding: 32px 24px;
+            }
+            
             header h1 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
             
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                padding: 24px;
+            }
+            
+            .stat-card {
+                padding: 16px;
             }
             
             .section {
-                padding: 20px;
+                padding: 24px;
+            }
+            
+            .section-title {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .repo-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -225,9 +397,9 @@
     <div class="container">
         <header>
             <h1>📊 Team Retrospective</h1>
-            <p><strong>{{ organization }}</strong></p>
-            <p>{{ start_date }} to {{ end_date }}</p>
-            <p style="font-size: 0.9em; opacity: 0.8;">Generated on: {{ generated_at }}</p>
+            <div class="org-name">{{ organization }}</div>
+            <div class="period">{{ start_date }} to {{ end_date }}</div>
+            <div class="generated">Generated on: {{ generated_at }}</div>
         </header>
         
         <div class="stats-grid">
@@ -256,6 +428,26 @@
                 <div class="value">{{ total_releases }}</div>
                 <div class="label">Releases</div>
             </div>
+            <div class="stat-card">
+                <div class="icon">➕</div>
+                <div class="value">{{ "{:,}".format(lines_added) }}</div>
+                <div class="label">Lines Added</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">➖</div>
+                <div class="value">{{ "{:,}".format(lines_removed) }}</div>
+                <div class="label">Lines Removed</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <div class="value">{{ summary.pr_approval_rate }}%</div>
+                <div class="label">PR Approval Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">👁️</div>
+                <div class="value">{{ summary.avg_reviews_per_pr }}</div>
+                <div class="label">Avg Reviews/PR</div>
+            </div>
         </div>
         
         <div class="section">
@@ -268,32 +460,35 @@
         </div>
         
         <div class="section">
-            <h2 class="section-title">🏆 Top Contributors</h2>
-            <ul class="ranking-list">
-                {% for author, commits in top_contributors.items() %}
-                <li class="ranking-item">
-                    <span class="position">{{ loop.index }}</span>
-                    <span class="medal">
-                        {% if loop.index == 1 %}🥇
-                        {% elif loop.index == 2 %}🥈
-                        {% elif loop.index == 3 %}🥉
-                        {% else %}👤{% endif %}
-                    </span>
-                    <span class="name">{{ author }}</span>
-                    <span class="value">{{ commits }} commits</span>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        
-        {% if charts.top_contributors_pie %}
-        <div class="section">
-            <h2 class="section-title">📊 Distribution</h2>
-            <div class="chart-container">
-                {{ charts.top_contributors_pie|safe }}
+            <div class="two-column">
+                <div>
+                    <h2 class="section-title">🏆 Top Contributors</h2>
+                    <ul class="ranking-list">
+                        {% for author, commits in top_contributors.items() %}
+                        <li class="ranking-item">
+                            <span class="position">{{ loop.index }}</span>
+                            <span class="medal">
+                                {% if loop.index == 1 %}🥇
+                                {% elif loop.index == 2 %}🥈
+                                {% elif loop.index == 3 %}🥉
+                                {% else %}👤{% endif %}
+                            </span>
+                            <span class="name">{{ author }}</span>
+                            <span class="value">{{ commits }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if charts.top_contributors_pie %}
+                <div>
+                    <h2 class="section-title">📊 Distribution</h2>
+                    <div class="chart-container">
+                        {{ charts.top_contributors_pie|safe }}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
         
         <div class="section">
             <h2 class="section-title">👀 Top Reviewers</h2>
@@ -308,7 +503,7 @@
                         {% else %}👤{% endif %}
                     </span>
                     <span class="name">{{ reviewer }}</span>
-                    <span class="value">{{ reviews }} reviews</span>
+                    <span class="value">{{ reviews }}</span>
                 </li>
                 {% endfor %}
             </ul>
@@ -319,6 +514,24 @@
             <h2 class="section-title">💻 Languages Used</h2>
             <div class="chart-container">
                 {{ charts.languages_pie|safe }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if charts.commits_by_weekday %}
+        <div class="section">
+            <h2 class="section-title">📅 Commits by Day of Week</h2>
+            <div class="chart-container">
+                {{ charts.commits_by_weekday|safe }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if charts.pr_size_distribution %}
+        <div class="section">
+            <h2 class="section-title">📏 PR Size Distribution</h2>
+            <div class="chart-container">
+                {{ charts.pr_size_distribution|safe }}
             </div>
         </div>
         {% endif %}
@@ -337,11 +550,11 @@
             {% for repo in repositories %}
             <div class="repo-card">
                 <h3>
-                    <a href="{{ repo.url }}" target="_blank" style="color: #667eea; text-decoration: none;">
+                    <a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">
                         {{ repo.name }} ↗
                     </a>
                 </h3>
-                <p class="description">{{ repo.description or 'No description' }}</p>
+                <p class="description">{{ repo.description or 'No description provided' }}</p>
                 
                 <div class="repo-stats">
                     <div class="repo-stat">
@@ -372,7 +585,12 @@
                     <div class="repo-stat">
                         <div class="icon">⏱️</div>
                         <div class="value">{{ "%.1f"|format(repo.pull_requests.avg_merge_time_hours) }}h</div>
-                        <div class="label">Avg merge time</div>
+                        <div class="label">Avg Merge</div>
+                    </div>
+                    <div class="repo-stat">
+                        <div class="icon">📏</div>
+                        <div class="value">{{ "%.0f"|format(repo.pull_requests.avg_size_lines) }}</div>
+                        <div class="label">Avg PR Size</div>
                     </div>
                 </div>
             </div>
@@ -380,8 +598,8 @@
         </div>
         
         <footer>
-            <p>🚀 GitHub Team Retrospective</p>
-            <p style="font-size: 0.9em; opacity: 0.8;">Generated automatically</p>
+            <p>🚀 <strong>GitHub Team Retrospective</strong></p>
+            <p class="subtitle">Generated automatically for squad analysis</p>
         </footer>
     </div>
 </body>

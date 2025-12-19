@@ -121,6 +121,8 @@ class ReportGenerator:
 | 🏷️ Releases | {summary['total_releases']} |
 | ➕ Lines Added | {summary['total_additions']:,} |
 | ➖ Lines Removed | {summary['total_deletions']:,} |
+| ✅ PR Approval Rate | {summary['pr_approval_rate']}% |
+| 👁️ Avg Reviews per PR | {summary['avg_reviews_per_pr']} |
 
 ---
 
@@ -152,7 +154,24 @@ class ReportGenerator:
         for month, commits in summary['commits_by_month'].items():
             md_content += f"- **{month}**: {commits} commits\n"
         
-        md_content += "\n---\n\n## 📚 Repository Breakdown\n\n"
+        md_content += "\n---\n\n## � Commits by Day of Week\n\n"
+        
+        # Commits by weekday
+        for day, commits in summary['commits_by_weekday'].items():
+            md_content += f"- **{day}**: {commits} commits\n"
+        
+        md_content += "\n---\n\n## 📏 PR Size Distribution\n\n"
+        
+        # PR size distribution
+        pr_dist = summary['pr_size_distribution']
+        total_prs = sum(pr_dist.values())
+        if total_prs > 0:
+            md_content += f"- **Small (<100 lines)**: {pr_dist['small']} ({pr_dist['small']/total_prs*100:.1f}%)\n"
+            md_content += f"- **Medium (100-500 lines)**: {pr_dist['medium']} ({pr_dist['medium']/total_prs*100:.1f}%)\n"
+            md_content += f"- **Large (500-1000 lines)**: {pr_dist['large']} ({pr_dist['large']/total_prs*100:.1f}%)\n"
+            md_content += f"- **X-Large (>1000 lines)**: {pr_dist['xlarge']} ({pr_dist['xlarge']/total_prs*100:.1f}%)\n"
+        
+        md_content += "\n---\n\n## �📚 Repository Breakdown\n\n"
         
         # Repository details
         for repo in self.metrics['repositories']:
@@ -247,5 +266,42 @@ class ReportGenerator:
             height=400
         )
         charts['prs_by_repo'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+        
+        # 5. Commits by Weekday
+        if summary['commits_by_weekday']:
+            weekdays = list(summary['commits_by_weekday'].keys())
+            commits_per_day = list(summary['commits_by_weekday'].values())
+            
+            fig = go.Figure(data=[
+                go.Bar(x=weekdays, y=commits_per_day, marker_color='rgb(99, 110, 250)')
+            ])
+            fig.update_layout(
+                title='Commits by Day of Week',
+                xaxis_title='Day',
+                yaxis_title='Commits',
+                height=400
+            )
+            charts['commits_by_weekday'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+        
+        # 6. PR Size Distribution
+        if summary['pr_size_distribution']:
+            sizes = ['Small\n(<100 lines)', 'Medium\n(100-500)', 'Large\n(500-1000)', 'X-Large\n(>1000)']
+            counts = [
+                summary['pr_size_distribution']['small'],
+                summary['pr_size_distribution']['medium'],
+                summary['pr_size_distribution']['large'],
+                summary['pr_size_distribution']['xlarge']
+            ]
+            
+            fig = go.Figure(data=[
+                go.Bar(x=sizes, y=counts, marker_color=['#51cf66', '#ffd93d', '#ff9500', '#ff6b6b'])
+            ])
+            fig.update_layout(
+                title='PR Size Distribution',
+                xaxis_title='Size Category',
+                yaxis_title='Number of PRs',
+                height=400
+            )
+            charts['pr_size_distribution'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
         
         return charts
