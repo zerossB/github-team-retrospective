@@ -64,7 +64,7 @@ class ReportGenerator:
         charts = self._generate_charts()
         
         # Load template
-        template_path = Path(__file__).parent.parent / 'templates' / 'report_template.html'
+        template_path = Path(__file__).parent.parent / 'templates' / 'new_report_template.html'
         with open(template_path, 'r', encoding='utf-8') as f:
             template_content = f.read()
         
@@ -86,6 +86,8 @@ class ReportGenerator:
             total_prs=summary['total_prs'],
             total_issues=summary['total_issues'],
             total_releases=summary['total_releases'],
+            lines_added=summary.get('total_additions', 0),
+            lines_removed=summary.get('total_deletions', 0),
             top_contributors=summary['top_contributors'],
             top_reviewers=summary['top_reviewers']
         )

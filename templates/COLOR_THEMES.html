@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Themes Preview - GitHub Team Retrospective</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .theme-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        
+        .theme-header {
+            padding: 20px;
+            color: white;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+        
+        .theme-content {
+            padding: 20px;
+        }
+        
+        .color-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .color-swatch {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            margin-right: 15px;
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+        
+        .color-info {
+            flex: 1;
+        }
+        
+        .color-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        
+        .color-value {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .installation {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .installation h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .code-block {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border-left: 4px solid #333;
+        }
+        
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .copy-button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+        
+        .copy-button:hover {
+            background: #555;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Color Theme Previews</h1>
+        <p class="subtitle">GitHub Team Retrospective Report Templates</p>
+        
+        <div class="themes-grid">
+            <!-- Blue Theme -->
+            <div class="theme-card">
+                <div class="theme-header" style="background: linear-gradient(135deg, #5b6efc 0%, #4557e0 100%);">
+                    💙 Blue (Default)
+                </div>
+                <div class="theme-content">
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #5b6efc;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-value">#5b6efc</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #4557e0;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark</div>
+                            <div class="color-value">#4557e0</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #8b9aff;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-value">#8b9aff</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Green Theme -->
+            <div class="theme-card">
+                <div class="theme-header" style="background: linear-gradient(135deg, #51cf66 0%, #2f9e44 100%);">
+                    💚 Green
+                </div>
+                <div class="theme-content">
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #51cf66;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-value">#51cf66</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #2f9e44;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark</div>
+                            <div class="color-value">#2f9e44</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #8ce99a;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-value">#8ce99a</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Purple Theme -->
+            <div class="theme-card">
+                <div class="theme-header" style="background: linear-gradient(135deg, #9c36b5 0%, #7d1fa2 100%);">
+                    💜 Purple
+                </div>
+                <div class="theme-content">
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #9c36b5;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-value">#9c36b5</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #7d1fa2;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark</div>
+                            <div class="color-value">#7d1fa2</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #c084fc;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-value">#c084fc</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Red Theme -->
+            <div class="theme-card">
+                <div class="theme-header" style="background: linear-gradient(135deg, #ff6b6b 0%, #fa5252 100%);">
+                    ❤️ Red
+                </div>
+                <div class="theme-content">
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #ff6b6b;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-value">#ff6b6b</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #fa5252;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark</div>
+                            <div class="color-value">#fa5252</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #ff8787;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-value">#ff8787</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orange Theme -->
+            <div class="theme-card">
+                <div class="theme-header" style="background: linear-gradient(135deg, #ff9500 0%, #f59f00 100%);">
+                    🧡 Orange
+                </div>
+                <div class="theme-content">
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #ff9500;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-value">#ff9500</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #f59f00;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark</div>
+                            <div class="color-value">#f59f00</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #ffa94d;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-value">#ffa94d</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cyan Theme -->
+            <div class="theme-card">
+                <div class="theme-header" style="background: linear-gradient(135deg, #1098ad 0%, #0b7285 100%);">
+                    🩵 Cyan
+                </div>
+                <div class="theme-content">
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #1098ad;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Primary</div>
+                            <div class="color-value">#1098ad</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #0b7285;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Dark</div>
+                            <div class="color-value">#0b7285</div>
+                        </div>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-swatch" style="background: #22b8cf;"></div>
+                        <div class="color-info">
+                            <div class="color-name">Light</div>
+                            <div class="color-value">#22b8cf</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="installation">
+            <h2>📝 How to Apply a Theme</h2>
+            
+            <p style="margin-bottom: 20px; color: #666;">
+                To use one of these themes, edit the <code>:root</code> CSS section in <code>templates/report_template.html</code>:
+            </p>
+            
+            <div class="code-block">
+                <code>:root {
+    /* Replace with your chosen theme colors */
+    --color-primary: #5b6efc;
+    --color-primary-dark: #4557e0;
+    --color-primary-light: #8b9aff;
+    
+    /* Other colors remain the same */
+    --color-secondary: #ff6b6b;
+    --color-accent: #ffd93d;
+    /* ... etc ... */
+}</code>
+            </div>
+            
+            <p style="color: #666; margin-bottom: 20px;">
+                For example, to use the <strong>Green theme</strong>, replace the primary colors with:
+            </p>
+            
+            <div class="code-block">
+                <code>:root {
+    --color-primary: #51cf66;
+    --color-primary-dark: #2f9e44;
+    --color-primary-light: #8ce99a;
+    /* ... rest of the colors ... */
+}</code>
+            </div>
+            
+            <p style="color: #666; margin-top: 20px;">
+                After making the change, regenerate your reports to see the new colors!
+            </p>
+        </div>
+        
+        <footer>
+            <p>🎨 GitHub Team Retrospective - Template Color System</p>
+            <p>All color values and themes can be customized. See TEMPLATE_CUSTOMIZATION.md for more details.</p>
+        </footer>
+    </div>
+</body>
+</html>
