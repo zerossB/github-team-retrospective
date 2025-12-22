@@ -222,7 +222,7 @@ class ReportGenerator:
                 yaxis_title='Commits',
                 height=400
             )
-            charts['commits_timeline'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+            charts['commits_timeline'] = fig.to_html(full_html=False, include_plotlyjs=False)
         
         # 2. Top contributors (pie)
         if summary['top_contributors']:
@@ -230,13 +230,13 @@ class ReportGenerator:
             commits = list(summary['top_contributors'].values())[:5]
             
             fig = go.Figure(data=[
-                go.Pie(labels=authors, values=commits, hole=1)
+                go.Pie(labels=authors, values=commits)
             ])
             fig.update_layout(
                 title='Top 5 Contributors',
                 height=400
             )
-            charts['top_contributors_pie'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+            charts['top_contributors_pie'] = fig.to_html(full_html=False, include_plotlyjs=False)
         
         # 3. Languages (pie)
         if summary['languages']:
@@ -250,7 +250,7 @@ class ReportGenerator:
                 title='Languages Used',
                 height=400
             )
-            charts['languages_pie'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+            charts['languages_pie'] = fig.to_html(full_html=False, include_plotlyjs=False)
         
         # 4. PRs per repository
         repo_names = [repo['name'] for repo in self.metrics['repositories']]
@@ -265,7 +265,7 @@ class ReportGenerator:
             yaxis_title='PRs',
             height=400
         )
-        charts['prs_by_repo'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+        charts['prs_by_repo'] = fig.to_html(full_html=False, include_plotlyjs=False)
         
         # 5. Commits by Weekday
         if summary['commits_by_weekday']:
@@ -281,7 +281,7 @@ class ReportGenerator:
                 yaxis_title='Commits',
                 height=400
             )
-            charts['commits_by_weekday'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+            charts['commits_by_weekday'] = fig.to_html(full_html=False, include_plotlyjs=False)
         
         # 6. PR Size Distribution
         if summary['pr_size_distribution']:
@@ -302,6 +302,6 @@ class ReportGenerator:
                 yaxis_title='Number of PRs',
                 height=400
             )
-            charts['pr_size_distribution'] = fig.to_html(full_html=False, include_plotlyjs='cdn')
+            charts['pr_size_distribution'] = fig.to_html(full_html=False, include_plotlyjs=False)
         
         return charts
