@@ -153,6 +153,12 @@
             border-radius: 2px;
         }
         
+        .section-description {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+            margin: 8px 0 16px;
+        }
+        
         .chart-container {
             margin: 24px 0;
             background: var(--color-bg);
@@ -452,6 +458,7 @@
         
         <div class="section">
             <h2 class="section-title">📈 Activity Over Time</h2>
+            <p class="section-description">Evolution of activity (commits) over the period.</p>
             {% if charts.commits_timeline %}
             <div class="chart-container">
                 {{ charts.commits_timeline|safe }}
@@ -463,6 +470,7 @@
             <div class="two-column">
                 <div>
                     <h2 class="section-title">🏆 Top Contributors</h2>
+                    <p class="section-description">Members with the highest number of commits during the period.</p>
                     <ul class="ranking-list">
                         {% for author, commits in top_contributors.items() %}
                         <li class="ranking-item">
@@ -482,6 +490,7 @@
                 {% if charts.top_contributors_pie %}
                 <div>
                     <h2 class="section-title">📊 Distribution</h2>
+                    <p class="section-description">Percentage distribution of commits by author.</p>
                     <div class="chart-container">
                         {{ charts.top_contributors_pie|safe }}
                     </div>
@@ -492,6 +501,7 @@
         
         <div class="section">
             <h2 class="section-title">👀 Top Reviewers</h2>
+            <p class="section-description">Members who performed the most PR reviews.</p>
             <ul class="ranking-list">
                 {% for reviewer, reviews in top_reviewers.items() %}
                 <li class="ranking-item">
@@ -512,6 +522,7 @@
         {% if charts.languages_pie %}
         <div class="section">
             <h2 class="section-title">💻 Languages Used</h2>
+            <p class="section-description">Most used languages in the analyzed repositories.</p>
             <div class="chart-container">
                 {{ charts.languages_pie|safe }}
             </div>
@@ -521,6 +532,7 @@
         {% if charts.commits_by_weekday %}
         <div class="section">
             <h2 class="section-title">📅 Commits by Day of Week</h2>
+            <p class="section-description">Days of the week with the highest commit activity.</p>
             <div class="chart-container">
                 {{ charts.commits_by_weekday|safe }}
             </div>
@@ -530,6 +542,7 @@
         {% if charts.pr_size_distribution %}
         <div class="section">
             <h2 class="section-title">📏 PR Size Distribution</h2>
+            <p class="section-description">Distribution of PR sizes (lines changed).</p>
             <div class="chart-container">
                 {{ charts.pr_size_distribution|safe }}
             </div>
@@ -539,6 +552,7 @@
         {% if charts.prs_by_repo %}
         <div class="section">
             <h2 class="section-title">🔀 Pull Requests per Repository</h2>
+            <p class="section-description">Number of PRs per repository.</p>
             <div class="chart-container">
                 {{ charts.prs_by_repo|safe }}
             </div>
@@ -547,6 +561,7 @@
         
         <div class="section">
             <h2 class="section-title">📚 Repository Breakdown</h2>
+            <p class="section-description">Summary of metrics per repository (commits, PRs, issues, releases).</p>
             {% for repo in repositories %}
             <div class="repo-card">
                 <h3>
