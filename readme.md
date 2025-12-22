@@ -44,7 +44,7 @@ cp config.yaml.example config.yaml
 
 ```yaml
 # Organization settings
-organization: "bildvitta"
+organization: "example"
 
 # Repository list (leave empty to analyze all)
 repositories:
