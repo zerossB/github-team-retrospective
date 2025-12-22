@@ -85,10 +85,13 @@ class MetricsCollector:
         
         print(f"\n📚 Analyzing {len(self.repositories)} repositories...\n")
         
-        # Collect metrics for each repository
-        for repo in tqdm(self.repositories, desc="Repositories"):
-            repo_metrics = self._collect_repository_metrics(repo)
-            metrics['repositories'].append(repo_metrics)
+        # Collect metrics for each repository in parallel (per repo workload is independent)
+        concurrency = max(1, self.options.get('concurrency', 2))
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            futures = {executor.submit(self._collect_repository_metrics, repo): repo for repo in self.repositories}
+            for future in tqdm(as_completed(futures), total=len(self.repositories), desc="Repositories"):
+                repo_metrics = future.result()
+                metrics['repositories'].append(repo_metrics)
         
         # Calculate overall summary
         metrics['summary'] = self._calculate_summary(metrics['repositories'])

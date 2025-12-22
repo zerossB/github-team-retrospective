@@ -16,6 +16,7 @@ from src.github_client import GitHubClient
 from src.metrics_collector import MetricsCollector
 from src.report_generator import ReportGenerator
 from src.utils import setup_logging, print_banner
+from src.repo_cloner import clone_or_update_repositories
 
 # Initialize colorama
 init(autoreset=True)
@@ -63,6 +64,15 @@ def load_config(config_path: str) -> dict:
     help="Output format (html, markdown)",
 )
 @click.option("--verbose", is_flag=True, help="Verbose output")
+@click.option(
+    "--clone-local",
+    is_flag=True,
+    help="Clone/update repositories locally before analysis",
+)
+@click.option(
+    "--clone-dir",
+    help="Base directory to clone repositories (supports {repo_name})",
+)
 def main(
     config,
     org,
@@ -73,6 +83,8 @@ def main(
     output_dir,
     output_format,
     verbose,
+    clone_local,
+    clone_dir,
 ):
     """
     🚀 GitHub Team Retrospective
@@ -126,7 +138,7 @@ def main(
         sys.exit(1)
 
     # Options
-    options = config_data.get("options", {})
+    options = config_data.get("options", {}) or {}
 
     click.echo(f"\n{Fore.CYAN}📊 Configuration:")
     click.echo(f"   Organization: {Fore.GREEN}{organization}")
@@ -141,6 +153,33 @@ def main(
         # Initialize GitHub client
         click.echo(f"{Fore.YELLOW}🔑 Connecting to GitHub...")
         client = GitHubClient(token, options)
+
+        # Clone repositories locally if requested
+        if clone_local:
+            click.echo(f"{Fore.YELLOW}📥 Cloning repositories locally...")
+
+            # Determine local path template
+            local_path_template = (
+                clone_dir
+                or options.get("local_repos_path")
+                or str(Path("repos") / "{repo_name}")
+            )
+            if "{repo_name}" not in local_path_template:
+                local_path_template = str(Path(local_path_template) / "{repo_name}")
+
+            # Fetch repository list to clone (all or specified)
+            repos_to_clone = client.get_repositories(organization, repositories or None)
+            repo_names = [r.name for r in repos_to_clone]
+
+            clone_results = clone_or_update_repositories(
+                organization, repo_names, local_path_template, token
+            )
+
+            for name, status in clone_results.items():
+                click.echo(f"   {Fore.GREEN}✅ {name}: {status}")
+
+            # Ensure metrics collector reads from local clones
+            options["local_repos_path"] = local_path_template
 
         # Collect metrics
         click.echo(f"{Fore.YELLOW}📈 Collecting metrics...")
