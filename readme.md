@@ -163,13 +163,13 @@ python src/main.py
 
 ```bash
 # Specify organization and repositories
-python src/main.py --org bildvitta --repos "repo1,repo2,repo3"
+python src/main.py --org example --repos "repo1,repo2,repo3"
 
 # Specify period
 python src/main.py --start-date 2025-01-01 --end-date 2025-12-15
 
 # Analyze all organization repositories
-python src/main.py --org bildvitta --all-repos
+python src/main.py --org example --all-repos
 
 # Help
 python src/main.py --help
